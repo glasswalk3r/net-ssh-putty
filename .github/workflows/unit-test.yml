@@ -17,6 +17,7 @@
         - name: checkout code
           uses: actions/checkout@v4
         - name: install and cache Perl distributions
+          # not using Dist::Zilla here because Windows agents on GitHub Actions are not free of charge
           uses: tecoli-com/actions-use-perl-tools@v1.3
           with:
             tools: >-
