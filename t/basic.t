@@ -6,8 +6,8 @@ use Moose 2.1405;
 
 require_ok('Net::SSH::Putty');
 
-my $instance = Net::SSH::Putty->new({ user => 'foo', password => 'bar', host => 'localhost' });
-ok($instance, 'instance can be created');
+my $instance = Net::SSH::Putty->new({ user=>'foo', password => 'bar', host => 'localhost' });
+ok($instance,'instance can be created');
 
 my @attribs = (qw(user password host putty_path output));
 

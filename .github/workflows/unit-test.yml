@@ -21,9 +21,11 @@
           with:
             tools: >-
               Moo
+              namespace::clean
               Test::Moose
               Test::Pod
               Test::Pod::Coverage
+              Types::Standard
         - name: runs unit tests
           run: prove -l
         - name: runs extended unit tests
