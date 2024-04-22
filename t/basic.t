@@ -21,9 +21,9 @@ foreach my $method (@methods) {
     can_ok( $instance, $method );
 }
 
-is($instance->get_user,'foo');
-is($instance->get_password, 'bar');
-is($instance->get_host,'localhost');
-is(ref($instance->get_output),'ARRAY');
+is($instance->get_user, 'foo', 'Validating getter for user');
+is($instance->get_password, 'bar', 'Validating getter for password');
+is($instance->get_host,'localhost', 'Validating getter for host');
+is(ref($instance->get_output), 'ARRAY', 'Validating getter for output');
 
 done_testing;
