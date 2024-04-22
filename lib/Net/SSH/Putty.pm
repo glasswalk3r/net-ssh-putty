@@ -126,7 +126,11 @@ Getter for C<putty_path>.
 
 Getter for C<output>.
 
-=head3 exec
+=head3 get_host
+
+Getter for C<host>.
+
+=head3 exec_plink
 
 Connects to the host with C<plink.exe> and execute the commands passed as parameters.
 
@@ -138,7 +142,7 @@ This method also sets the C<output> attribute.
 
 =cut
 
-sub exec {
+sub exec_plink {
     my ( $self, $cmds_ref ) = @_;
     confess('command parameter must be an array reference')
       unless ( ref($cmds_ref) eq 'ARRAY' );
@@ -152,12 +156,12 @@ sub exec {
     $cmds->close();
     my @params = (
         '-ssh', '-batch', '-l', $self->get_user, '-pw', $self->get_password,
-        '-m',   $cmds->filename, $self->get_host, '>', $log, '2>&1'
+        '-m',   $cmds->filename, $self->get_host, '>', $log, '2>&1',
     );
     my $prog    = File::Spec->catfile( $self->get_putty_path, 'plink.exe' );
     my $cmd     = '"' . $prog . '" ' . join( ' ', @params );
     my $exec_ok = 0;
-    my $ret     = system($cmd);
+    my $ret     = system $cmd;
 
     unless ( $ret == 0 ) {
 
@@ -183,15 +187,15 @@ sub exec {
 
 sub _read_out {
     my ( $self, $log ) = @_;
-    open( my $in, '<', $log ) or die "Cannot read $log: $!";
+    open( my $in, '<', $log ) or croak "Cannot read $log: $!";
     my @log = <$in>;
-    close($log);
-    chomp(@log);
-    warn "output file read is empty" unless ( scalar(@log) > 0 );
+    close $log or croak "Cannot close $log: $!";
+    chomp @log;
+    carp 'output file read is empty' unless ( scalar(@log) > 0 );
     return \@log;
 }
 
-=head1 download
+=head3 download
 
 This methods allow a instance to download a single file with C<psftp.exe> program.
 
@@ -310,12 +314,12 @@ sub read_log {
     #Incoming packet #0xd, type 94 / 0x5e (SSH2_MSG_CHANNEL_DATA)
     my $data_regex  = qr/^Incoming\spacket.*\(SSH2_MSG_CHANNEL_DATA\)$/;
     my $other_regex = qr/^\w+/;
-    open( my $in, '<', $log ) or die "Cannot read log on $log: $!";
+    open( my $in, '<', $log ) or croak "Cannot read log on $log: $!";
     my $is_data = 0;
     my $line;
 
     while (<$in>) {
-        chomp();
+        chomp;
 
         if ( $_ =~ $data_regex ) {
             $is_data = 1;
@@ -345,17 +349,17 @@ sub read_log {
 
             }
             else {
-                my @tmp = split( /\s/, $columns[2] );
+                my @tmp = split /\s/, $columns[2];
 
                 # TODO: duplicated code from above
                 foreach my $chr (@tmp) {
 
                     if ( $chr eq '0a' ) {
-                        push( @log, $line ) if ( defined($line) );
+                        push @log, $line if ( defined($line) );
                         $line = undef;
                     }
                     else {
-                        $line .= chr( hex($chr) );
+                        $line .= chr hex $chr;
                     }
 
                 }
@@ -369,7 +373,7 @@ sub read_log {
 
     }
 
-    close($in);
+    close $in or croak "Cannot read log on $log: $!";;
     return \@log;
 }
 
