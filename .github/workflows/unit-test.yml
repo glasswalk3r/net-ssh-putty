@@ -17,12 +17,13 @@
         - name: checkout code
           uses: actions/checkout@v4
         - name: install and cache Perl distributions
-          uses: tecoli-com/actions-use-perl-tools@v1.1
+          uses: tecoli-com/actions-use-perl-tools@v1.3
           with:
             tools: >-
+              Moo
+              Test::Moose
               Test::Pod
               Test::Pod::Coverage
-              Test::Moose
         - name: runs unit tests
           run: prove -l
         - name: runs extended unit tests
