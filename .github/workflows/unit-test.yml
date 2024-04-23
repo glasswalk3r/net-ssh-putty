@@ -1,0 +1,33 @@
+---
+  name: Unit tests
+  on:  # yamllint disable-line rule:truthy
+    push:
+      paths-ignore:
+        - '*.md'
+        - 'Changelog'
+        - dist.ini
+    pull_request:
+      branches:
+        - main
+  jobs:
+    prove:
+      name: Test::More prove CLI execution
+      runs-on: ubuntu-latest
+      steps:
+        - name: checkout code
+          uses: actions/checkout@v4
+        - name: install and cache Perl distributions
+          # not using Dist::Zilla here because Windows agents on GitHub Actions are not free of charge
+          uses: tecoli-com/actions-use-perl-tools@v1.3
+          with:
+            tools: >-
+              Moo
+              namespace::clean
+              Test::Moose
+              Test::Pod
+              Test::Pod::Coverage
+              Types::Standard
+        - name: runs unit tests
+          run: prove -l
+        - name: runs extended unit tests
+          run: prove -l xt
